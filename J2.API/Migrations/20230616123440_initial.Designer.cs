@@ -4,6 +4,7 @@ using J2.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace J2.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230616123440_initial")]
+    partial class initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,12 +55,7 @@ namespace J2.API.Migrations
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Expenses");
                 });
@@ -176,15 +174,6 @@ namespace J2.API.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("J2.API.Models.Expense", b =>
-                {
-                    b.HasOne("J2.API.Models.User", null)
-                        .WithMany("Expenses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("J2.API.Models.ExpenseSubCategory", b =>
                 {
                     b.HasOne("J2.API.Models.ExpenseCategory", null)
@@ -197,11 +186,6 @@ namespace J2.API.Migrations
             modelBuilder.Entity("J2.API.Models.ExpenseCategory", b =>
                 {
                     b.Navigation("ExpenseSubCategories");
-                });
-
-            modelBuilder.Entity("J2.API.Models.User", b =>
-                {
-                    b.Navigation("Expenses");
                 });
 #pragma warning restore 612, 618
         }
