@@ -1,7 +1,9 @@
 using J2.API.Models;
 using J2.API.StartupExtensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,14 @@ builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(builder.Configur
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 
+// Register the Swagger generator, defining 1 or more Swagger documents
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Family Expense Management Api", Version = "v1" });
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    option.IncludeXmlComments(xmlPath);
+});
 
 var app = builder.Build();
 //app.UseSerilogRequestLogging();
