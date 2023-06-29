@@ -1,5 +1,5 @@
 using J2.API.Models;
-
+using J2.API.StartupExtensions;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -20,6 +20,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddAuthentication();
+builder.Services.ConfigureIdentity();
+
 
 var app = builder.Build();
 //app.UseSerilogRequestLogging();
