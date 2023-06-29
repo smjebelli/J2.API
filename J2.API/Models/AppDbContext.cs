@@ -10,16 +10,55 @@ namespace J2.API.Models
         {
 
         }
-       
+
         public DbSet<User> Users { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
         public DbSet<ExpenseSubCategory> ExpenseSubCategories { get; set; }
+        public DbSet<Family> Families { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            
+
             //Seeding data
+
+            Guid defaultUserId = Guid.NewGuid();
+            Guid defaultFamilyId = Guid.NewGuid();
+
+            var defaultUser = new
+            {
+                Id = defaultUserId,
+                Email = "s.m.jebelli@gmail.com",
+                FirstName = "admin",
+                LastName = "admin",
+                MobileNumber = "09355270270",
+                UserName = "admin",
+                FamilyId = defaultFamilyId,
+                CreatedBy = defaultUserId,
+                CreatedOn = DateTime.Now
+            };
+            var user = new User()
+            {
+                Email = defaultUser.Email,
+                FamilyId = defaultUser.FamilyId,
+                FirstName = defaultUser.FirstName,
+                LastName = defaultUser.LastName,
+                Id = defaultUserId,
+                MobileNumber = defaultUser.MobileNumber,
+                UserName = defaultUser.UserName,
+            };
+
+            var defaultFamily = new 
+            {
+                Id = defaultFamilyId,
+                FamilyName = "Test",
+               // Users = new List<User>() { user},
+                CreatedBy = defaultUserId,
+                CreatedOn = DateTime.Now
+            };
+
+            modelBuilder.Entity<Family>().HasData(defaultFamily);
+            modelBuilder.Entity<User>().HasData(defaultUser);
 
             //Guid orwellId = Guid.NewGuid();
             //Guid AstenId = Guid.NewGuid();

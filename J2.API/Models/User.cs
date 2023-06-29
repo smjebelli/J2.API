@@ -8,6 +8,7 @@
         public string LastName { get; set; }
         public string Email { get; set; }
         public List<Expense> Expenses { get; set; }
+        public Guid FamilyId { get; set; }
 
     }
 }
