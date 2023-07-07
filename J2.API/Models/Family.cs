@@ -3,6 +3,6 @@
     public class Family:BaseEntity
     {
         public string FamilyName { get; set; }
-        public List<User> Users { get; set; }
+        public List<FamilyMember> Members { get; set; }
     }
 }

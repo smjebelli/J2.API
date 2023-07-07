@@ -7,9 +7,9 @@ namespace J2.API.Models
     public class BaseAutditable
     {
     }
-    public class BaseEntity : BaseAutditable 
-    { 
-        public Guid Id { get; set; } 
+    public class BaseEntity : BaseAutditable, IBaseEntity
+    {
+        public Guid Id { get; set; }
     }
 
 }

@@ -46,6 +46,9 @@ namespace J2.API.Migrations
                     b.Property<int>("ExpenseSubcategoryId")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("FamilyMemberId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -57,7 +60,7 @@ namespace J2.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("FamilyMemberId");
 
                     b.ToTable("Expenses");
                 });
@@ -162,14 +165,14 @@ namespace J2.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d1d8c56b-33d2-4c10-a15b-be87373feddc"),
-                            CreatedBy = new Guid("b16c5620-8b60-4210-a0e5-60a05f612003"),
-                            CreatedOn = new DateTime(2023, 6, 29, 14, 28, 18, 553, DateTimeKind.Local).AddTicks(9785),
+                            Id = new Guid("cd91464c-6c0d-4d36-83ef-d7b871bd2256"),
+                            CreatedBy = new Guid("840315d3-2f1c-48e4-a170-6200f65ed083"),
+                            CreatedOn = new DateTime(2023, 7, 7, 9, 27, 44, 839, DateTimeKind.Local).AddTicks(6644),
                             FamilyName = "Test"
                         });
                 });
 
-            modelBuilder.Entity("J2.API.Models.User", b =>
+            modelBuilder.Entity("J2.API.Models.FamilyMember", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -181,16 +184,8 @@ namespace J2.API.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("FamilyId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
@@ -198,36 +193,19 @@ namespace J2.API.Migrations
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MobileNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("FamilyId");
 
-                    b.ToTable("Users");
+                    b.ToTable("FamilyMembers");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b16c5620-8b60-4210-a0e5-60a05f612003"),
-                            CreatedBy = new Guid("b16c5620-8b60-4210-a0e5-60a05f612003"),
-                            CreatedOn = new DateTime(2023, 6, 29, 14, 28, 18, 553, DateTimeKind.Local).AddTicks(9761),
-                            Email = "s.m.jebelli@gmail.com",
-                            FamilyId = new Guid("d1d8c56b-33d2-4c10-a15b-be87373feddc"),
-                            FirstName = "admin",
-                            LastName = "admin",
-                            MobileNumber = "09355270270",
-                            UserName = "admin"
+                            Id = new Guid("840315d3-2f1c-48e4-a170-6200f65ed083"),
+                            CreatedBy = new Guid("840315d3-2f1c-48e4-a170-6200f65ed083"),
+                            CreatedOn = new DateTime(2023, 7, 7, 9, 27, 44, 839, DateTimeKind.Local).AddTicks(6631),
+                            FamilyId = new Guid("cd91464c-6c0d-4d36-83ef-d7b871bd2256")
                         });
                 });
 
@@ -431,11 +409,9 @@ namespace J2.API.Migrations
 
             modelBuilder.Entity("J2.API.Models.Expense", b =>
                 {
-                    b.HasOne("J2.API.Models.User", null)
+                    b.HasOne("J2.API.Models.FamilyMember", null)
                         .WithMany("Expenses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FamilyMemberId");
                 });
 
             modelBuilder.Entity("J2.API.Models.ExpenseSubCategory", b =>
@@ -447,10 +423,10 @@ namespace J2.API.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("J2.API.Models.User", b =>
+            modelBuilder.Entity("J2.API.Models.FamilyMember", b =>
                 {
                     b.HasOne("J2.API.Models.Family", null)
-                        .WithMany("Users")
+                        .WithMany("Members")
                         .HasForeignKey("FamilyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -514,10 +490,10 @@ namespace J2.API.Migrations
 
             modelBuilder.Entity("J2.API.Models.Family", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("Members");
                 });
 
-            modelBuilder.Entity("J2.API.Models.User", b =>
+            modelBuilder.Entity("J2.API.Models.FamilyMember", b =>
                 {
                     b.Navigation("Expenses");
                 });

@@ -11,7 +11,7 @@ namespace J2.API.Models
 
         }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<FamilyMember> FamilyMembers { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
         public DbSet<ExpenseSubCategory> ExpenseSubCategories { get; set; }
@@ -37,15 +37,10 @@ namespace J2.API.Models
                 CreatedBy = defaultUserId,
                 CreatedOn = DateTime.Now
             };
-            var user = new User()
+            var user = new FamilyMember()
             {
-                Email = defaultUser.Email,
-                FamilyId = defaultUser.FamilyId,
-                FirstName = defaultUser.FirstName,
-                LastName = defaultUser.LastName,
+                FamilyId = defaultUser.FamilyId,               
                 Id = defaultUserId,
-                MobileNumber = defaultUser.MobileNumber,
-                UserName = defaultUser.UserName,
             };
 
             var defaultFamily = new 
@@ -58,7 +53,7 @@ namespace J2.API.Models
             };
 
             modelBuilder.Entity<Family>().HasData(defaultFamily);
-            modelBuilder.Entity<User>().HasData(defaultUser);
+            modelBuilder.Entity<FamilyMember>().HasData(defaultUser);
 
             //Guid orwellId = Guid.NewGuid();
             //Guid AstenId = Guid.NewGuid();

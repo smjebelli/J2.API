@@ -6,21 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace J2.API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentity : Migration
+    public partial class familymemeberAdded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData(
-                table: "Users",
-                keyColumn: "Id",
-                keyValue: new Guid("e57ba91b-7559-413d-b0df-b7fbcc69f29c"));
-
-            migrationBuilder.DeleteData(
-                table: "Families",
-                keyColumn: "Id",
-                keyValue: new Guid("79b20623-afc5-48b8-aeb1-6bd1f1738054"));
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -58,6 +48,40 @@ namespace J2.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ExpenseCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExpenseCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Families",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FamilyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Families", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -166,15 +190,88 @@ namespace J2.API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ExpenseSubCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpenseCategoryId = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExpenseSubCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExpenseSubCategories_ExpenseCategories_ExpenseCategoryId",
+                        column: x => x.ExpenseCategoryId,
+                        principalTable: "ExpenseCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FamilyMembers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FamilyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FamilyMembers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FamilyMembers_Families_FamilyId",
+                        column: x => x.FamilyId,
+                        principalTable: "Families",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Expenses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Amount = table.Column<long>(type: "bigint", nullable: false),
+                    ExpenseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ExpenseCategoryId = table.Column<int>(type: "int", nullable: false),
+                    ExpenseSubcategoryId = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FamilyMemberId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Expenses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Expenses_FamilyMembers_FamilyMemberId",
+                        column: x => x.FamilyMemberId,
+                        principalTable: "FamilyMembers",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.InsertData(
                 table: "Families",
                 columns: new[] { "Id", "CreatedBy", "CreatedOn", "FamilyName", "LastModifiedBy", "LastModifiedOn" },
-                values: new object[] { new Guid("d1d8c56b-33d2-4c10-a15b-be87373feddc"), new Guid("b16c5620-8b60-4210-a0e5-60a05f612003"), new DateTime(2023, 6, 29, 14, 28, 18, 553, DateTimeKind.Local).AddTicks(9785), "Test", null, null });
+                values: new object[] { new Guid("cd91464c-6c0d-4d36-83ef-d7b871bd2256"), new Guid("840315d3-2f1c-48e4-a170-6200f65ed083"), new DateTime(2023, 7, 7, 9, 27, 44, 839, DateTimeKind.Local).AddTicks(6644), "Test", null, null });
 
             migrationBuilder.InsertData(
-                table: "Users",
-                columns: new[] { "Id", "CreatedBy", "CreatedOn", "Email", "FamilyId", "FirstName", "LastModifiedBy", "LastModifiedOn", "LastName", "MobileNumber", "UserName" },
-                values: new object[] { new Guid("b16c5620-8b60-4210-a0e5-60a05f612003"), new Guid("b16c5620-8b60-4210-a0e5-60a05f612003"), new DateTime(2023, 6, 29, 14, 28, 18, 553, DateTimeKind.Local).AddTicks(9761), "s.m.jebelli@gmail.com", new Guid("d1d8c56b-33d2-4c10-a15b-be87373feddc"), "admin", null, null, "admin", "09355270270", "admin" });
+                table: "FamilyMembers",
+                columns: new[] { "Id", "CreatedBy", "CreatedOn", "FamilyId", "LastModifiedBy", "LastModifiedOn" },
+                values: new object[] { new Guid("840315d3-2f1c-48e4-a170-6200f65ed083"), new Guid("840315d3-2f1c-48e4-a170-6200f65ed083"), new DateTime(2023, 7, 7, 9, 27, 44, 839, DateTimeKind.Local).AddTicks(6631), new Guid("cd91464c-6c0d-4d36-83ef-d7b871bd2256"), null, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -214,6 +311,21 @@ namespace J2.API.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Expenses_FamilyMemberId",
+                table: "Expenses",
+                column: "FamilyMemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExpenseSubCategories_ExpenseCategoryId",
+                table: "ExpenseSubCategories",
+                column: "ExpenseCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FamilyMembers_FamilyId",
+                table: "FamilyMembers",
+                column: "FamilyId");
         }
 
         /// <inheritdoc />
@@ -235,30 +347,25 @@ namespace J2.API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Expenses");
+
+            migrationBuilder.DropTable(
+                name: "ExpenseSubCategories");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
 
-            migrationBuilder.DeleteData(
-                table: "Users",
-                keyColumn: "Id",
-                keyValue: new Guid("b16c5620-8b60-4210-a0e5-60a05f612003"));
+            migrationBuilder.DropTable(
+                name: "FamilyMembers");
 
-            migrationBuilder.DeleteData(
-                table: "Families",
-                keyColumn: "Id",
-                keyValue: new Guid("d1d8c56b-33d2-4c10-a15b-be87373feddc"));
+            migrationBuilder.DropTable(
+                name: "ExpenseCategories");
 
-            migrationBuilder.InsertData(
-                table: "Families",
-                columns: new[] { "Id", "CreatedBy", "CreatedOn", "FamilyName", "LastModifiedBy", "LastModifiedOn" },
-                values: new object[] { new Guid("79b20623-afc5-48b8-aeb1-6bd1f1738054"), new Guid("e57ba91b-7559-413d-b0df-b7fbcc69f29c"), new DateTime(2023, 6, 29, 9, 11, 16, 175, DateTimeKind.Local).AddTicks(888), "Test", null, null });
-
-            migrationBuilder.InsertData(
-                table: "Users",
-                columns: new[] { "Id", "CreatedBy", "CreatedOn", "Email", "FamilyId", "FirstName", "LastModifiedBy", "LastModifiedOn", "LastName", "MobileNumber", "UserName" },
-                values: new object[] { new Guid("e57ba91b-7559-413d-b0df-b7fbcc69f29c"), new Guid("e57ba91b-7559-413d-b0df-b7fbcc69f29c"), new DateTime(2023, 6, 29, 9, 11, 16, 175, DateTimeKind.Local).AddTicks(866), "s.m.jebelli@gmail.com", new Guid("79b20623-afc5-48b8-aeb1-6bd1f1738054"), "admin", null, null, "admin", "09355270270", "admin" });
+            migrationBuilder.DropTable(
+                name: "Families");
         }
     }
 }
