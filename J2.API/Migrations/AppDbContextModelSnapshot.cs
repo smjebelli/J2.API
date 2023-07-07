@@ -46,9 +46,6 @@ namespace J2.API.Migrations
                     b.Property<int>("ExpenseSubcategoryId")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("FamilyMemberId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -59,8 +56,6 @@ namespace J2.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FamilyMemberId");
 
                     b.ToTable("Expenses");
                 });
@@ -161,52 +156,6 @@ namespace J2.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Families");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("cd91464c-6c0d-4d36-83ef-d7b871bd2256"),
-                            CreatedBy = new Guid("840315d3-2f1c-48e4-a170-6200f65ed083"),
-                            CreatedOn = new DateTime(2023, 7, 7, 9, 27, 44, 839, DateTimeKind.Local).AddTicks(6644),
-                            FamilyName = "Test"
-                        });
-                });
-
-            modelBuilder.Entity("J2.API.Models.FamilyMember", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("FamilyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FamilyId");
-
-                    b.ToTable("FamilyMembers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("840315d3-2f1c-48e4-a170-6200f65ed083"),
-                            CreatedBy = new Guid("840315d3-2f1c-48e4-a170-6200f65ed083"),
-                            CreatedOn = new DateTime(2023, 7, 7, 9, 27, 44, 839, DateTimeKind.Local).AddTicks(6631),
-                            FamilyId = new Guid("cd91464c-6c0d-4d36-83ef-d7b871bd2256")
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -273,6 +222,10 @@ namespace J2.API.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -324,6 +277,10 @@ namespace J2.API.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -407,11 +364,24 @@ namespace J2.API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("J2.API.Models.Expense", b =>
+            modelBuilder.Entity("J2.API.Models.AppUser", b =>
                 {
-                    b.HasOne("J2.API.Models.FamilyMember", null)
-                        .WithMany("Expenses")
-                        .HasForeignKey("FamilyMemberId");
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<Guid?>("FamilyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasIndex("FamilyId");
+
+                    b.HasDiscriminator().HasValue("AppUser");
                 });
 
             modelBuilder.Entity("J2.API.Models.ExpenseSubCategory", b =>
@@ -419,15 +389,6 @@ namespace J2.API.Migrations
                     b.HasOne("J2.API.Models.ExpenseCategory", null)
                         .WithMany("ExpenseSubCategories")
                         .HasForeignKey("ExpenseCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("J2.API.Models.FamilyMember", b =>
-                {
-                    b.HasOne("J2.API.Models.Family", null)
-                        .WithMany("Members")
-                        .HasForeignKey("FamilyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -483,6 +444,13 @@ namespace J2.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("J2.API.Models.AppUser", b =>
+                {
+                    b.HasOne("J2.API.Models.Family", null)
+                        .WithMany("Members")
+                        .HasForeignKey("FamilyId");
+                });
+
             modelBuilder.Entity("J2.API.Models.ExpenseCategory", b =>
                 {
                     b.Navigation("ExpenseSubCategories");
@@ -491,11 +459,6 @@ namespace J2.API.Migrations
             modelBuilder.Entity("J2.API.Models.Family", b =>
                 {
                     b.Navigation("Members");
-                });
-
-            modelBuilder.Entity("J2.API.Models.FamilyMember", b =>
-                {
-                    b.Navigation("Expenses");
                 });
 #pragma warning restore 612, 618
         }
