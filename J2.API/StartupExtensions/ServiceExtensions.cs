@@ -13,6 +13,7 @@ namespace J2.API.StartupExtensions
             builder.AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
             services.AddIdentity<AppUser, IdentityRole>();
+           
         }
 
 

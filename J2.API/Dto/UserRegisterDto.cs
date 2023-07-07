@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace J2.API.Dto
 {
-    public class UserDto
+    public class UserRegisterDto
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
