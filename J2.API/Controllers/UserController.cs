@@ -1,5 +1,6 @@
 ﻿using J2.API.Dto;
 using J2.API.Models;
+using J2.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,14 +16,16 @@ namespace J2.API.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IAuthManager _authManager;
 
         public readonly ILogger<UserController> _logger;
 
-        public UserController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<UserController> logger)
+        public UserController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<UserController> logger, IAuthManager authManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _authManager = authManager;
         }
 
         [HttpPost]
@@ -67,17 +70,17 @@ namespace J2.API.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-          // var res = await _signInManager.PasswordSignInAsync(new AppUser() { Email = login.Email }, login.Password, true, false);
-
-            var _user = await _userManager.FindByNameAsync(login.Email);
-            var validPassword = await _userManager.CheckPasswordAsync(_user, login.Password);
-            if (_user != null && validPassword)
-                return Accepted();
-
-            else
+            if (!await _authManager.ValidateUser(login))
                 return Unauthorized();
+            else
+            {
+                return Accepted(new { token =await _authManager.CreateToken() });
+            }
+            
 
+            
+
+            
         }
 
         //[HttpPost]

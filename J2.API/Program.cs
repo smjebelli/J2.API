@@ -1,5 +1,6 @@
 using J2.API.Configurations;
 using J2.API.Models;
+using J2.API.Services;
 using J2.API.StartupExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -26,7 +27,9 @@ builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(builder.Configur
 
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
+builder.Services.ConfigureJwt(builder.Configuration); 
 
+builder.Services.AddScoped<IAuthManager, AuthManager>();
 
 // Register the Swagger generator, defining 1 or more Swagger documents
 builder.Services.AddSwaggerGen(option =>
