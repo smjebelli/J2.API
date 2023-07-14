@@ -1,3 +1,4 @@
+using J2.API.Configurations;
 using J2.API.Models;
 using J2.API.StartupExtensions;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,7 @@ builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(builder.Configur
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 
+
 // Register the Swagger generator, defining 1 or more Swagger documents
 builder.Services.AddSwaggerGen(option =>
 {
@@ -52,5 +54,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//SampleData.Initialize(app.Services);
 
 app.Run();

@@ -21,7 +21,11 @@ namespace J2.API.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration())
+                .ApplyConfiguration(new UserConfiguration())
+                .ApplyConfiguration(new UserRoleConfiguration());
+            
+            
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {

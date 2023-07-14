@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace J2.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230707183956_seedRoles")]
-    partial class seedRoles
+    [Migration("20230714072549_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -190,13 +190,13 @@ namespace J2.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "7c2e6b39-8024-4805-b491-1f9842eb7ea4",
+                            Id = "a537935f-01b5-4f9a-9c80-ccfe728402a8",
                             Name = "admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "9f945555-56c7-460b-8925-c62f60a574cd",
+                            Id = "4635a3c1-79e6-471a-8f5e-cb75865eece8",
                             Name = "user",
                             NormalizedName = "USER"
                         });
@@ -360,6 +360,13 @@ namespace J2.API.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "75b5fe28-7aac-4b20-b430-1d1a045b5afa",
+                            RoleId = "a537935f-01b5-4f9a-9c80-ccfe728402a8"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -399,6 +406,27 @@ namespace J2.API.Migrations
                     b.HasIndex("FamilyId");
 
                     b.HasDiscriminator().HasValue("AppUser");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "75b5fe28-7aac-4b20-b430-1d1a045b5afa",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "01f23c1f-40fd-45fa-ab92-b53dead3720e",
+                            Email = "s.m.jebelli@gmail.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "S.M.JEBELLI@GMAIL.COM",
+                            NormalizedUserName = "S.M.JEBELLI@GMAIL.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFwz6/VqGTpUQKU9IuQvvYJoVFj+5Mb3iZMYNqFMGRr+a0thS+Yyxp4WtwgW/cEY+A==",
+                            PhoneNumber = "09355270270",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "85287cbf-d752-4255-867d-60b35f3f758e",
+                            TwoFactorEnabled = false,
+                            UserName = "s.m.jebelli@gmail.com",
+                            FirstName = "محمد",
+                            LastName = "جبلی"
+                        });
                 });
 
             modelBuilder.Entity("J2.API.Models.ExpenseSubCategory", b =>
