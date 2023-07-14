@@ -78,9 +78,6 @@ namespace J2.API.Controllers
             }
             
 
-            
-
-            
         }
 
         //[HttpPost]
