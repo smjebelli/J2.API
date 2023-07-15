@@ -15,6 +15,7 @@ namespace J2.API.Services
         Task<bool> ValidateRole(string role);
         Task<IdentityResult> RegisterUser(UserRegisterDto user);
         Task<IdentityResult> AddUserToRole(string userName, string roleName);
+        Task<bool> UserExists(string userName);
     }
     public class AuthManager : IAuthManager
     {
@@ -86,6 +87,12 @@ namespace J2.API.Services
         {
             _user = await _userManager.FindByEmailAsync(user.Email);
             return (_user != null && await _userManager.CheckPasswordAsync(_user, user.Password));
+        }
+        
+        public async Task<bool> UserExists(string userName)
+        {
+            var user = await _userManager.FindByEmailAsync(userName);
+            return user != null;
         }
 
         public async Task<IdentityResult> AddUserToRole(string userName, string roleName)

@@ -8,8 +8,9 @@ namespace J2.API.Controllers
     [ApiController]
     public class ExpenseController : ControllerBase
     {
-        [Authorize]
+        //[Authorize]
         [HttpGet]
+        [Route("Test1")]
         public async Task<IActionResult> Test()
         {
             return Ok(new { id = 1 });

@@ -69,7 +69,7 @@ namespace J2.API.Controllers
 
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost]
         [Route("AddUserToRole")]
         public async Task<IActionResult> AddUserToRole(AddUserToRoleDto data)
@@ -79,7 +79,7 @@ namespace J2.API.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if (!await _authManager.ValidateUser(new UserLoginDto { Email = data.UserName }))
+            if (!await _authManager.UserExists(data.UserName)) 
                 return BadRequest(new { message = "کابر مورد نظر یافت نشد" });
 
             if (!await _authManager.ValidateRole(data.RoleName))

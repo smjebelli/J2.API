@@ -47,12 +47,14 @@ namespace J2.API.StartupExtensions
                     o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
                     {
                         ValidateIssuer = true,
+                        ValidateAudience=false,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtSettings.GetSection("Issuer").Value,
+                        ValidIssuer = jwtSettings.GetSection("Issuer").Value,                        
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
                     };
                 });
+
 
         }
 
