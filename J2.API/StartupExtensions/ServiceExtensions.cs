@@ -11,11 +11,22 @@ namespace J2.API.StartupExtensions
     {
         public static void ConfigureIdentity(this IServiceCollection services)
         {
-            var builder = services.AddIdentityCore<AppUser>(x => x.Password.RequiredLength = 8);
-            builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), services);
-            builder.AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+            var builder = services.AddIdentity<AppUser, IdentityRole>(o =>
+            o.Password = new PasswordOptions() { RequiredLength = 8 })
+                .AddEntityFrameworkStores<AppDbContext>()
+                //.AddRoles<IdentityRole>()
+                //.AddRoleManager<IdentityRole>()
+                .AddDefaultTokenProviders();
 
-            services.AddIdentity<AppUser, IdentityRole>();
+
+            //var builder = services.AddIdentityCore<AppUser>(x => x.Password.RequiredLength = 8);
+            //builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), services);
+            //builder
+            //    .AddEntityFrameworkStores<AppDbContext>()
+            //    .AddRoles<IdentityRole>()
+            //    .AddDefaultTokenProviders();
+
+            //services.AddIdentity<AppUser, IdentityRole>();
 
         }
 

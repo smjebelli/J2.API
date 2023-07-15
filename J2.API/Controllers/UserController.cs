@@ -1,6 +1,7 @@
 ﻿using J2.API.Dto;
 using J2.API.Models;
 using J2.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,17 +14,13 @@ namespace J2.API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+
         private readonly IAuthManager _authManager;
 
         public readonly ILogger<UserController> _logger;
 
-        public UserController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ILogger<UserController> logger, IAuthManager authManager)
+        public UserController(ILogger<UserController> logger, IAuthManager authManager)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
             _logger = logger;
             _authManager = authManager;
         }
@@ -39,26 +36,18 @@ namespace J2.API.Controllers
             }
             try
             {
-                AppUser u = new AppUser()
-                {
-                    UserName = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,        
-                    
-                };
-                var res= await _userManager.CreateAsync(u,user.Password);
-                if (res.Succeeded)                
+                var res = await _authManager.RegisterUser(user);
+                if (res.Succeeded)
                     return Ok(res);
-                
-                else                
+
+                else
                     return BadRequest(res.Errors.Select(x => x.Description).ToList());
-                
+
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "خطایی رخ داده است");
-            }           
+            }
         }
 
         [HttpPost]
@@ -74,43 +63,40 @@ namespace J2.API.Controllers
                 return Unauthorized();
             else
             {
-                return Accepted(new { token =await _authManager.CreateToken() });
+                return Accepted(new { token = await _authManager.CreateToken() });
             }
-            
+
 
         }
 
-        //[HttpPost]
-        //[Route("AddUserToRole")]
-        //public async Task<IActionResult> AddUserToRole(AddUserToRoleDto data)
-        //{
-        //    _logger.LogInformation($"افزودن کاربر {data.UserName} به نقش {data.RoleName}");
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+        [Authorize]
+        [HttpPost]
+        [Route("AddUserToRole")]
+        public async Task<IActionResult> AddUserToRole(AddUserToRoleDto data)
+        {
+            _logger.LogInformation($"افزودن کاربر {data.UserName} به نقش {data.RoleName}");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!await _authManager.ValidateUser(new UserLoginDto { Email = data.UserName }))
+                return BadRequest(new { message = "کابر مورد نظر یافت نشد" });
 
-        //    var user = await _userManager.FindByNameAsync(data.UserName);
-        //    if (user == null)
-        //    {
-        //        return BadRequest();
-        //    }
-        //    var role = await _roleManager.FindByNameAsync(data.RoleName);
-        //    if (role == null)
-        //    {
-        //        return BadRequest();
-        //    }
+            if (!await _authManager.ValidateRole(data.RoleName))
+                return BadRequest(new { message = "نقش مورد نظر یافت نشد" });
 
-        //    var res= await _userManager.AddToRoleAsync(user, data.RoleName);
-        //    if (res.Succeeded)
-        //    {
-        //        return Ok();
-        //    }
-        //    else
-        //    {
-        //        return Problem("خطایی رخ داده است", statusCode: 500);
-        //    }
-        //}
+
+
+            var res = await _authManager.AddUserToRole(data.UserName, data.RoleName);
+            if (res.Succeeded)
+            {
+                return Ok();
+            }
+            else
+            {
+                return Problem("خطایی رخ داده است", statusCode: 500);
+            }
+        }
 
     }
 }

@@ -12,17 +12,22 @@ namespace J2.API.Services
     {
         Task<string> CreateToken();
         Task<bool> ValidateUser(UserLoginDto user);
+        Task<bool> ValidateRole(string role);
+        Task<IdentityResult> RegisterUser(UserRegisterDto user);
+        Task<IdentityResult> AddUserToRole(string userName, string roleName);
     }
     public class AuthManager : IAuthManager
     {
         private IConfiguration _configuration;
         private UserManager<AppUser> _userManager;
+        private RoleManager<IdentityRole> _roleManager;
         private AppUser _user;
 
-        public AuthManager(IConfiguration configuration, UserManager<AppUser> userManager)
+        public AuthManager(IConfiguration configuration, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _configuration = configuration;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
 
@@ -53,15 +58,43 @@ namespace J2.API.Services
                 expires: DateTime.Now.AddMinutes(double.Parse(jwtSettings.GetSection("ValidationDurtationMinutes").Value)),
                 signingCredentials: singingCredentials
             );
-            
+
             return new JwtSecurityTokenHandler().WriteToken(token);
 
+        }
+
+        public async Task<IdentityResult> RegisterUser(UserRegisterDto user)
+        {
+            AppUser appUser = new AppUser()
+            {
+                UserName = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+
+            };
+            return await _userManager.CreateAsync(appUser, user.Password);
+
+        }
+
+        public async Task<bool> ValidateRole(string role)
+        {
+            return await _roleManager.RoleExistsAsync(role);
         }
 
         public async Task<bool> ValidateUser(UserLoginDto user)
         {
             _user = await _userManager.FindByEmailAsync(user.Email);
             return (_user != null && await _userManager.CheckPasswordAsync(_user, user.Password));
+        }
+
+        public async Task<IdentityResult> AddUserToRole(string userName, string roleName)
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+            if (!await _roleManager.RoleExistsAsync(roleName))
+                throw new Exception("نقش مورد نظر یافت نشد");
+
+            return await _userManager.AddToRoleAsync(user, roleName);
         }
     }
 }
