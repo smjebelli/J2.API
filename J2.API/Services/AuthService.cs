@@ -9,7 +9,7 @@ using System.Text;
 
 namespace J2.API.Services
 {
-    public interface IAuthManager
+    public interface IAuthService
     {
         Task<string> CreateToken();
         Task<bool> ValidateUser(UserLoginDto user);
@@ -20,14 +20,14 @@ namespace J2.API.Services
         Task<TokenRequest> VerifyRefreshToken(TokenRequest request);
         Task<string> CreateRefreshToken();
     }
-    public class AuthManager : IAuthManager
+    public class AuthService : IAuthService
     {
         private IConfiguration _configuration;
         private UserManager<AppUser> _userManager;
         private RoleManager<IdentityRole> _roleManager;
         private AppUser _user;
 
-        public AuthManager(IConfiguration configuration, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AuthService(IConfiguration configuration, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _configuration = configuration;
             _userManager = userManager;

@@ -29,7 +29,8 @@ builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJwt(builder.Configuration); 
 
-builder.Services.AddScoped<IAuthManager, AuthManager>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategorySerivce>();
 
 // Register the Swagger generator, defining 1 or more Swagger documents
 builder.Services.AddSwaggerGen(option =>
