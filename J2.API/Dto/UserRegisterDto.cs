@@ -14,5 +14,6 @@ namespace J2.API.Dto
         [Required]
         [StringLength(30,ErrorMessage ="",MinimumLength =8)]
         public string Password { get; set; }
+        //public List<string> Roles { get; set; }
     }
 }

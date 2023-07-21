@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 
 namespace J2.API.Utilities
@@ -51,5 +52,12 @@ namespace J2.API.Utilities
 
             return buffer3.SequenceEqual(buffer4);            
         }
+
+        public static object SerializeJson(this object obj)
+        {
+            return JsonConvert.SerializeObject(obj);
+        }
+
+
     }
 }

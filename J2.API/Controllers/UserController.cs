@@ -38,8 +38,9 @@ namespace J2.API.Controllers
             {
                 var res = await _authManager.RegisterUser(user);
                 if (res.Succeeded)
+                {
                     return Ok(res);
-
+                }
                 else
                     return BadRequest(res.Errors.Select(x => x.Description).ToList());
 
@@ -63,31 +64,40 @@ namespace J2.API.Controllers
                 return Unauthorized();
             else
             {
-                return Accepted(new { token = await _authManager.CreateToken() });
+                return Accepted(new { token = await _authManager.CreateToken(), RefreshToken = await _authManager.CreateRefreshToken() });
             }
 
 
         }
 
-        //[Authorize]
+        [HttpPost]
+        [Route("refreshtoken")]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenRequest request)
+        {
+            var tokenRequest = await _authManager.VerifyRefreshToken(request);
+            if (tokenRequest is null)
+            {
+                return Unauthorized();
+            }
+
+            return Ok(tokenRequest);
+        }
+
+        [Authorize(Roles ="admin")]
         [HttpPost]
         [Route("AddUserToRole")]
-        public async Task<IActionResult> AddUserToRole(AddUserToRoleDto data)
+        public async Task<IActionResult> AddUserToRole([FromBody] AddUserToRoleDto data)
         {
-            _logger.LogInformation($"افزودن کاربر {data.UserName} به نقش {data.RoleName}");
+            _logger.LogInformation($"افزودن کاربر {data.UserName} به نقشهای {data.RoleNames}");
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
             if (!await _authManager.UserExists(data.UserName)) 
-                return BadRequest(new { message = "کابر مورد نظر یافت نشد" });
+                return BadRequest(new { message = "کاربر مورد نظر یافت نشد" });
 
-            if (!await _authManager.ValidateRole(data.RoleName))
-                return BadRequest(new { message = "نقش مورد نظر یافت نشد" });
-
-
-
-            var res = await _authManager.AddUserToRole(data.UserName, data.RoleName);
+           
+            var res = await _authManager.AddUserToRoles(data.UserName, data.RoleNames);
             if (res.Succeeded)
             {
                 return Ok();

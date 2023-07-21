@@ -16,7 +16,7 @@ namespace J2.API.StartupExtensions
                 .AddEntityFrameworkStores<AppDbContext>()
                 //.AddRoles<IdentityRole>()
                 //.AddRoleManager<IdentityRole>()
-                .AddDefaultTokenProviders();
+                .AddTokenProvider("JeyApi9876",typeof(EmailTokenProvider<AppUser>));
 
 
             //var builder = services.AddIdentityCore<AppUser>(x => x.Password.RequiredLength = 8);
@@ -36,6 +36,11 @@ namespace J2.API.StartupExtensions
             //command on windows to create key:  setx JKey 3a367dd9-0f04-4365-bd46-13a29b278220 
 
             var key = Environment.GetEnvironmentVariable("Jkey");
+
+            if (key is null)
+            {
+                throw new Exception("Secret Key not found");
+            }
 
             services.AddAuthentication(o =>
             {

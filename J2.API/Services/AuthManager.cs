@@ -1,5 +1,6 @@
 ﻿using J2.API.Dto;
 using J2.API.Models;
+using J2.API.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,8 +15,10 @@ namespace J2.API.Services
         Task<bool> ValidateUser(UserLoginDto user);
         Task<bool> ValidateRole(string role);
         Task<IdentityResult> RegisterUser(UserRegisterDto user);
-        Task<IdentityResult> AddUserToRole(string userName, string roleName);
+        Task<IdentityResult> AddUserToRoles(string userName, List<string> roles);
         Task<bool> UserExists(string userName);
+        Task<TokenRequest> VerifyRefreshToken(TokenRequest request);
+        Task<string> CreateRefreshToken();
     }
     public class AuthManager : IAuthManager
     {
@@ -74,7 +77,12 @@ namespace J2.API.Services
                 Email = user.Email,
 
             };
-            return await _userManager.CreateAsync(appUser, user.Password);
+            var createResult = await _userManager.CreateAsync(appUser, user.Password);
+            if (!createResult.Succeeded)
+            {
+                throw new Exception($"Problem in creating user {appUser.UserName}");
+            }
+            return await _userManager.AddToRolesAsync(appUser, new List<string> { "user"});
 
         }
 
@@ -88,20 +96,50 @@ namespace J2.API.Services
             _user = await _userManager.FindByEmailAsync(user.Email);
             return (_user != null && await _userManager.CheckPasswordAsync(_user, user.Password));
         }
-        
+
         public async Task<bool> UserExists(string userName)
         {
             var user = await _userManager.FindByEmailAsync(userName);
             return user != null;
         }
 
-        public async Task<IdentityResult> AddUserToRole(string userName, string roleName)
+        public async Task<IdentityResult> AddUserToRoles(string userName, List<string> roles)
         {
             var user = await _userManager.FindByNameAsync(userName);
-            if (!await _roleManager.RoleExistsAsync(roleName))
-                throw new Exception("نقش مورد نظر یافت نشد");
 
-            return await _userManager.AddToRoleAsync(user, roleName);
+            return await _userManager.AddToRolesAsync(user, roles);
+
+        }
+
+        public async Task<string> CreateRefreshToken()
+        {
+            await _userManager.RemoveAuthenticationTokenAsync(_user, "JeyApi9876", "RefreshToken");
+            var newRefreshToken = await _userManager.GenerateUserTokenAsync(_user, "JeyApi9876", "RefreshToken");
+            var result = await _userManager.SetAuthenticationTokenAsync(_user, "JeyApi9876", "RefreshToken", newRefreshToken);
+            return newRefreshToken;
+        }
+
+        public async Task<TokenRequest> VerifyRefreshToken(TokenRequest request)
+        {
+            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            var tokenContent = jwtSecurityTokenHandler.ReadJwtToken(request.Token);
+            var username = tokenContent.Claims.ToList().FirstOrDefault(q => q.Type == ClaimTypes.Name)?.Value;
+            _user = await _userManager.FindByNameAsync(username);
+            try
+            {
+                var isValid = await _userManager.VerifyUserTokenAsync(_user, "JeyApi9876", "RefreshToken", request.RefreshToken);
+                if (isValid)
+                {
+                    return new TokenRequest { Token = await CreateToken(), RefreshToken = await CreateRefreshToken() };
+                }
+                await _userManager.UpdateSecurityStampAsync(_user);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return null;
         }
     }
 }
