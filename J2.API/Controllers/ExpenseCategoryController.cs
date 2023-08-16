@@ -23,7 +23,7 @@ namespace J2.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetAll(bool subCategoriesIncluded=false)
+        public async Task<IActionResult> GetAll(bool subCategoriesIncluded = false)
         {
             _logger.LogInformation($"");
             if (!ModelState.IsValid)
@@ -52,7 +52,7 @@ namespace J2.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(AddExpenseCategoryDto obj)
         {
-            
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -64,7 +64,36 @@ namespace J2.API.Controllers
                 if (res > 0)
                     return Ok(res);
                 else
-                    return  StatusCode(500, "خطایی رخ داده است");
+                    return StatusCode(500, "خطایی رخ داده است");
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "خطایی رخ داده است");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(UpdateExpenseCategoryDto obj)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var data = new ExpenseCategory()
+                {
+                    Name = obj.Name,
+                    Description = obj.Description,
+                    Id = obj.Id
+                };
+                var res = _expenseCategoryService.UpdateCategory(data);
+                if (res > 0)
+                    return Ok(res);
+                else
+                    return StatusCode(500, "خطایی رخ داده است");
 
             }
             catch (Exception ex)

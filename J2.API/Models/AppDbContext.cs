@@ -23,7 +23,8 @@ namespace J2.API.Models
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new RoleConfiguration())
                 .ApplyConfiguration(new UserConfiguration())
-                .ApplyConfiguration(new UserRoleConfiguration());
+                .ApplyConfiguration(new UserRoleConfiguration())
+                .ApplyConfiguration(new ExpenseCategoryConfiguration());
             
             
 
@@ -94,5 +95,44 @@ namespace J2.API.Models
             }
             return base.SaveChanges();
         }
+
+        #region ______ Methods ______
+        
+        public async Task<int> SaveChangesAsync()
+        {
+            return await base.SaveChangesAsync();
+        }
+
+        public bool AddEntity<TEntity>(TEntity entity)
+        {
+            base.Entry(entity).State = EntityState.Added;
+            return true;
+        }
+
+        public bool AddEntityAsync<TEntity>(TEntity entity)
+        {
+            AddEntityAsync(entity);
+
+            return true;
+        }
+
+        public int Rollback()
+        {
+
+            return 0;
+        }
+
+        public void UpdateEntity<TEntity>(TEntity entity) where TEntity : class
+        {
+            Entry(entity).State = EntityState.Modified;
+        }
+
+        public void RemoveEntity<TEntity>(TEntity entity) where TEntity : class
+        {
+            Entry(entity).State = EntityState.Deleted;
+        }
+
+        #endregion
+
     }
 }

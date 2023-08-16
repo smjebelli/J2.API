@@ -8,6 +8,7 @@ namespace J2.API.Services
     {
         Task<List<ExpenseCategory>> GetAllCategories(bool subCategoriesIncluded);
         int AddCategory(ExpenseCategory data);
+        int UpdateCategory(ExpenseCategory data);
 
     }
     public class ExpenseCategorySerivce : IExpenseCategoryService
@@ -28,12 +29,29 @@ namespace J2.API.Services
             return _context.SaveChanges();
         }
 
-        public async Task<List<ExpenseCategory>> GetAllCategories(bool subCategoriesIncluded=false)
+        public async Task<List<ExpenseCategory>> GetAllCategories(bool subCategoriesIncluded = false)
         {
 
-            var categories =subCategoriesIncluded? await _context.ExpenseCategories.Include(x => x.ExpenseSubCategories).ToListAsync():
+            var categories = subCategoriesIncluded ? await _context.ExpenseCategories.Include(x => x.ExpenseSubCategories).ToListAsync() :
                  await _context.ExpenseCategories.ToListAsync();
             return categories;
+        }
+
+        public int UpdateCategory(ExpenseCategory data)
+        {
+            var ec = _context.ExpenseCategories.AsNoTracking().FirstOrDefault(x => x.Id == data.Id);
+            if (ec == null)
+                return 0;
+
+            ec.Name= data.Name;
+            ec.Description= data.Description;
+
+            _context.Update(ec);
+            //_context.UpdateEntity(ec);
+            //var updateRes = _context.Update(ec);
+            //if (updateRes.State == EntityState.Modified) {
+            //}
+            return _context.SaveChanges();
         }
     }
 }
