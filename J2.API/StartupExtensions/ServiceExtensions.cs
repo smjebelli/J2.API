@@ -1,8 +1,10 @@
 ﻿using J2.API.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Protocol;
+using System.Net;
 using System.Text;
 
 namespace J2.API.StartupExtensions
@@ -63,5 +65,27 @@ namespace J2.API.StartupExtensions
 
         }
 
+
+        public static void ConfigureExceptionHandler(this IApplicationBuilder app)
+        {
+            app.UseExceptionHandler(appError =>
+            {
+                appError.Run(async context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Response.ContentType = "application/json";
+                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    if (contextFeature != null)
+                    {
+                        Serilog.Log.Error($"Something went wrong: {contextFeature.Error}");
+                        await context.Response.WriteAsync(new ErrorDetails()
+                        {
+                            StatusCode = context.Response.StatusCode,
+                            Message = "خطایی رخ داده است"
+                        }.ToString()) ;
+                    }
+                });
+            });
+        }
     }
 }
