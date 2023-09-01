@@ -1,6 +1,8 @@
-﻿using J2.API.Dto;
+﻿using J2.API.Common;
+using J2.API.Dto;
 using J2.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace J2.API.Services
 {
@@ -15,12 +17,17 @@ namespace J2.API.Services
     {
         private readonly AppDbContext _context;
         private readonly ILogger<ExpenseCategorySerivce> _logger;
+        private IMemoryCache _cache;
+        
 
-
-        public ExpenseCategorySerivce(AppDbContext context, ILogger<ExpenseCategorySerivce> logger)
+        public ExpenseCategorySerivce(
+            AppDbContext context, 
+            ILogger<ExpenseCategorySerivce> logger,
+            IMemoryCache cache)
         {
             _context = context;
             _logger = logger;
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public int AddCategory(ExpenseCategory data)
@@ -31,10 +38,25 @@ namespace J2.API.Services
 
         public async Task<List<ExpenseCategory>> GetAllCategories(bool subCategoriesIncluded = false)
         {
-
-            var categories = subCategoriesIncluded ? await _context.ExpenseCategories.Include(x => x.ExpenseSubCategories).ToListAsync() :
+            if (!_cache.TryGetValue(CacheKeys.ExpenseCategoriesCacheKey, out List<ExpenseCategory> categories))
+            {
+                categories = subCategoriesIncluded ? await _context.ExpenseCategories.Include(x => x.ExpenseSubCategories).ToListAsync() :
                  await _context.ExpenseCategories.ToListAsync();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(120))
+                    .SetAbsoluteExpiration(TimeSpan.FromHours(24))
+                    .SetPriority(CacheItemPriority.Normal)
+                    .SetSize(1024);
+                _cache.Set(CacheKeys.ExpenseCategoriesCacheKey, categories, cacheEntryOptions);
+
+            }
+            else
+            {
+                _logger.Log(LogLevel.Information, "Expense Category list found in cache.");
+            }
             return categories;
+
         }
 
         public int UpdateCategory(ExpenseCategory data)
