@@ -3,6 +3,7 @@ using J2.API.Models;
 using J2.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace J2.API.Controllers
 {
@@ -12,11 +13,16 @@ namespace J2.API.Controllers
     {
         private readonly IExpenseCategoryService _expenseCategoryService;
         private readonly ILogger<ExpenseCategoryController> _logger;
+       
 
-        public ExpenseCategoryController(IExpenseCategoryService expenseCategoryService, ILogger<ExpenseCategoryController> logger)
+        public ExpenseCategoryController(
+            IExpenseCategoryService expenseCategoryService,
+            ILogger<ExpenseCategoryController> logger
+            )
         {
             _expenseCategoryService = expenseCategoryService;
             _logger = logger;
+            
         }
         /// <summary>
         /// دریافت کلیه طبقه بندی های هزینه ها
@@ -25,7 +31,8 @@ namespace J2.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll(bool subCategoriesIncluded = false)
         {
-            _logger.LogInformation($"");
+
+            _logger.LogInformation($"Getting all categories");
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
