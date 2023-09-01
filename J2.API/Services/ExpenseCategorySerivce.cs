@@ -1,4 +1,5 @@
-﻿using J2.API.Dto;
+﻿using J2.API.Common;
+using J2.API.Dto;
 using J2.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -17,7 +18,7 @@ namespace J2.API.Services
         private readonly AppDbContext _context;
         private readonly ILogger<ExpenseCategorySerivce> _logger;
         private IMemoryCache _cache;
-        private const string ExpenseCategoriesCacheKey = "ExpenseCategories";
+        
 
         public ExpenseCategorySerivce(
             AppDbContext context, 
@@ -37,17 +38,17 @@ namespace J2.API.Services
 
         public async Task<List<ExpenseCategory>> GetAllCategories(bool subCategoriesIncluded = false)
         {
-            if (!_cache.TryGetValue(ExpenseCategoriesCacheKey, out List<ExpenseCategory> categories))
+            if (!_cache.TryGetValue(CacheKeys.ExpenseCategoriesCacheKey, out List<ExpenseCategory> categories))
             {
                 categories = subCategoriesIncluded ? await _context.ExpenseCategories.Include(x => x.ExpenseSubCategories).ToListAsync() :
                  await _context.ExpenseCategories.ToListAsync();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromSeconds(60))
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                    .SetSlidingExpiration(TimeSpan.FromMinutes(120))
+                    .SetAbsoluteExpiration(TimeSpan.FromHours(24))
                     .SetPriority(CacheItemPriority.Normal)
                     .SetSize(1024);
-                _cache.Set(ExpenseCategoriesCacheKey, categories, cacheEntryOptions);
+                _cache.Set(CacheKeys.ExpenseCategoriesCacheKey, categories, cacheEntryOptions);
 
             }
             else
