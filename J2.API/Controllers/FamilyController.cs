@@ -34,7 +34,7 @@ namespace J2.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var claim = User.Claims.Where(c => c.Type == "name").FirstOrDefault();
+            var claim = User.Claims.Where(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name").FirstOrDefault();
 
             var res = await _familyService.CreateFamily(claim?.Value, createFamilyRequest.FamilyName);
             if (res)
