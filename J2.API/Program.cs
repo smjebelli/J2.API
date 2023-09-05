@@ -23,6 +23,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddDbContext<AppDbContext>(o => 
         o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -30,11 +31,9 @@ builder.Services.AddMemoryCache();
 
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
-builder.Services.ConfigureJwt(builder.Configuration); 
+builder.Services.ConfigureJwt(builder.Configuration);
 
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IExpenseCategoryService, ExpenseCategorySerivce>();
-
+builder.Services.ConfigureMainServices();
 
 // Register the Swagger generator, defining 1 or more Swagger documents
 builder.Services.AddSwaggerGen(option =>

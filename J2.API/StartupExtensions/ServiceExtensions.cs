@@ -1,4 +1,5 @@
 ﻿using J2.API.Models;
+using J2.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
@@ -18,7 +19,7 @@ namespace J2.API.StartupExtensions
                 .AddEntityFrameworkStores<AppDbContext>()
                 //.AddRoles<IdentityRole>()
                 //.AddRoleManager<IdentityRole>()
-                .AddTokenProvider("JeyApi9876",typeof(EmailTokenProvider<AppUser>));
+                .AddTokenProvider("JeyApi9876", typeof(EmailTokenProvider<AppUser>));
 
 
             //var builder = services.AddIdentityCore<AppUser>(x => x.Password.RequiredLength = 8);
@@ -54,14 +55,14 @@ namespace J2.API.StartupExtensions
                     o.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
                     {
                         ValidateIssuer = true,
-                        ValidateAudience=false,
+                        ValidateAudience = false,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtSettings.GetSection("Issuer").Value,                        
+                        ValidIssuer = jwtSettings.GetSection("Issuer").Value,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
                     };
                 });
-
+            
 
         }
 
@@ -82,10 +83,18 @@ namespace J2.API.StartupExtensions
                         {
                             StatusCode = context.Response.StatusCode,
                             Message = "خطایی رخ داده است"
-                        }.ToString()) ;
+                        }.ToString());
                     }
                 });
             });
+        }
+
+        public static void ConfigureMainServices(this IServiceCollection services)
+        {
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IExpenseCategoryService, ExpenseCategorySerivce>();
+            services.AddScoped<IFamilyService,FamilyService>();
+
         }
     }
 }

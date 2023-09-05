@@ -15,7 +15,7 @@ namespace J2.API.Services
     }
     public class ExpenseCategorySerivce : IExpenseCategoryService
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _dbContext;
         private readonly ILogger<ExpenseCategorySerivce> _logger;
         private IMemoryCache _cache;
         
@@ -25,23 +25,23 @@ namespace J2.API.Services
             ILogger<ExpenseCategorySerivce> logger,
             IMemoryCache cache)
         {
-            _context = context;
+            _dbContext = context;
             _logger = logger;
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public int AddCategory(ExpenseCategory data)
         {
-            _context.ExpenseCategories.Add(data);
-            return _context.SaveChanges();
+            _dbContext.ExpenseCategories.Add(data);
+            return _dbContext.SaveChanges();
         }
 
         public async Task<List<ExpenseCategory>> GetAllCategories(bool subCategoriesIncluded = false)
         {
             if (!_cache.TryGetValue(CacheKeys.ExpenseCategoriesCacheKey, out List<ExpenseCategory> categories))
             {
-                categories = subCategoriesIncluded ? await _context.ExpenseCategories.Include(x => x.ExpenseSubCategories).ToListAsync() :
-                 await _context.ExpenseCategories.ToListAsync();
+                categories = subCategoriesIncluded ? await _dbContext.ExpenseCategories.Include(x => x.ExpenseSubCategories).ToListAsync() :
+                 await _dbContext.ExpenseCategories.ToListAsync();
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromMinutes(120))
@@ -61,19 +61,19 @@ namespace J2.API.Services
 
         public int UpdateCategory(ExpenseCategory data)
         {
-            var ec = _context.ExpenseCategories.AsNoTracking().FirstOrDefault(x => x.Id == data.Id);
+            var ec = _dbContext.ExpenseCategories.AsNoTracking().FirstOrDefault(x => x.Id == data.Id);
             if (ec == null)
                 return 0;
 
             ec.Name= data.Name;
             ec.Description= data.Description;
 
-            _context.Update(ec);
+            _dbContext.Update(ec);
             //_context.UpdateEntity(ec);
             //var updateRes = _context.Update(ec);
             //if (updateRes.State == EntityState.Modified) {
             //}
-            return _context.SaveChanges();
+            return _dbContext.SaveChanges();
         }
     }
 }
