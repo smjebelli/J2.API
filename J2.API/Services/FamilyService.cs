@@ -1,17 +1,23 @@
-﻿using J2.API.Dto;
+﻿using J2.API.Common;
+using J2.API.Constants;
+using J2.API.Dto;
 using J2.API.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace J2.API.Services
 {
     public interface IFamilyService
     {
-        Task<bool> CreateFamily(string userName, string familyName);
+        Task<GeneralBaseResponse> CreateFamily(CreateFamilyDto createFamilyRequest);
         Task AddUserToFamily(string userName);
         Task RemoveUserFromFamily(Guid familyId, string userName);
         Task<List<FamilyMemberDto>> GetFamilyMembers(Guid famiyId);
+        Task<GeneralBaseResponse<List<FamilyDto>>> GetFamilies(GetFamiliesDto getFamilieRequest);
     }
 
 
@@ -35,24 +41,70 @@ namespace J2.API.Services
             throw new NotImplementedException();
         }
 
-        public async Task<bool> CreateFamily(string userName, string familyName)
+        public async Task<GeneralBaseResponse> CreateFamily(CreateFamilyDto createFamilyRequest)
         {
-            //string userId = _httpContextAccessor?.HttpContext?.User?
-            //    .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var response = new GeneralBaseResponse();
+            var user = await _userManager.FindByNameAsync(createFamilyRequest.UserName);
 
-            //var user = await _userManager.FindByIdAsync(userId);
-            var user = await _userManager.FindByNameAsync(userName);
 
-            if (user == null) { return false; }
+            if (user == null)
+            {
+                response.Result = NodeResult.UserNotFound;
+                return response;
+            }
+            var families = _dbContext.Families.FromSqlRaw<Family>(
+                $"select * from families where CreatedBy='{user.Id}' and FamilyName='{createFamilyRequest.FamilyName}'").ToList();
+
+            if (families.Any())
+            {
+                response.Result = NodeResult.FamilyAlreadyExists;
+                return response;
+            }
 
             _dbContext.Families.Add(new Family()
             {
-                FamilyName = familyName,
-                Members = new List<AppUser>() { user }
+                FamilyName = createFamilyRequest.FamilyName,
+                Members = new List<FamilyMember>() { new FamilyMember{Name= "خودم" },
+                
+                }
             });
 
             int res = _dbContext.SaveChanges();
-            return res > 0;
+            if (res > 0)
+            {
+                response.Result = NodeResult.Ok;
+                return response;
+
+            }
+
+            return response;
+        }
+
+        public async Task<GeneralBaseResponse<List<FamilyDto>>> GetFamilies(GetFamiliesDto getFamilieRequest)
+        {
+            var response = new GeneralBaseResponse<List<FamilyDto>>();
+            var user = await _userManager.FindByNameAsync(getFamilieRequest.userName);
+
+            if (user == null)
+            {
+                response.Result = NodeResult.UserNotFound;
+                return response;
+            }
+
+            var families = _dbContext.Families.FromSqlRaw<Family>($"select * from families where CreatedBy='{user.Id}'").ToList();
+
+            if (families.Any())
+            {
+                response.Data = families.Select(x => new FamilyDto(x.Id.ToString(), x.FamilyName, user.UserName)).ToList();
+            }
+            else
+            {
+                response.Result = NodeResult.NotContent;
+                return response;
+            }
+
+            response.Result = NodeResult.Ok;
+            return response;
         }
 
         public Task<List<FamilyMemberDto>> GetFamilyMembers(Guid famiyId)
