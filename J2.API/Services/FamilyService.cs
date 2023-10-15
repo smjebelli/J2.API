@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -44,6 +45,7 @@ namespace J2.API.Services
         public async Task<GeneralBaseResponse> CreateFamily(CreateFamilyDto createFamilyRequest)
         {
             var response = new GeneralBaseResponse();
+
             var user = await _userManager.FindByNameAsync(createFamilyRequest.UserName);
 
 
@@ -67,24 +69,26 @@ namespace J2.API.Services
                 LastName = user.LastName,
                 NickName = $"{user.FirstName} {user.LastName}"
             };
-            
+
 
             var family = _dbContext.Families.Add(new Family()
             {
-                FamilyName = createFamilyRequest.FamilyName,   
-                Members= new List<FamilyMember>() { member}
+                FamilyName = createFamilyRequest.FamilyName,
+                Members = new List<FamilyMember>() { member }
             });
 
-            
 
-            
 
-            int res = _dbContext.SaveChanges();
+            int res = _dbContext.SaveChanges(user.Id);
             if (res > 0)
             {
                 response.Result = NodeResult.Ok;
                 return response;
 
+            }
+            else
+            {
+                response.Result = NodeResult.Error;
             }
 
             return response;
@@ -93,6 +97,7 @@ namespace J2.API.Services
         public async Task<GeneralBaseResponse<List<FamilyDto>>> GetFamilies(GetFamiliesDto getFamilieRequest)
         {
             var response = new GeneralBaseResponse<List<FamilyDto>>();
+            List<Family> families;
             var user = await _userManager.FindByNameAsync(getFamilieRequest.userName);
 
             if (user == null)
@@ -101,7 +106,14 @@ namespace J2.API.Services
                 return response;
             }
 
-            var families = _dbContext.Families.FromSqlRaw<Family>($"select * from families where CreatedBy='{user.Id}'").ToList();
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var adminRole = roles.Where(x => x.ToLower().Contains("admin")).FirstOrDefault();
+            if (!string.IsNullOrEmpty(adminRole))
+                families = _dbContext.Families.FromSqlRaw<Family>($"select * from families where CreatedBy is not null").ToList();
+
+            else
+                families = _dbContext.Families.FromSqlRaw<Family>($"select * from families where CreatedBy='{user.Id}'").ToList();
 
             if (families.Any())
             {

@@ -25,8 +25,8 @@ namespace J2.API.Models
                 .ApplyConfiguration(new UserConfiguration())
                 .ApplyConfiguration(new UserRoleConfiguration())
                 .ApplyConfiguration(new ExpenseCategoryConfiguration());
-            
-            
+
+
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
@@ -78,6 +78,12 @@ namespace J2.API.Models
         }
         public override int SaveChanges()
         {
+            HandleInsertUpdateTime();
+            return base.SaveChanges();
+        }
+
+        private void HandleInsertUpdateTime()
+        {
             ChangeTracker.DetectChanges();
 
             foreach (var entry in ChangeTracker.Entries()
@@ -85,7 +91,10 @@ namespace J2.API.Models
             {
                 if (entry.Entity.GetType().GetCustomAttributes(typeof(AuditableAttribute), true).Length > 0)
                 {
-                    entry.Property("LastModifiedOn").CurrentValue = DateTime.Now;
+                    if (entry.State == EntityState.Modified)
+                    {
+                        entry.Property("LastModifiedOn").CurrentValue = DateTime.Now;
+                    }
 
                     if (entry.State == EntityState.Added)
                     {
@@ -93,15 +102,54 @@ namespace J2.API.Models
                     }
                 }
             }
+        }
+
+        private void HandleUserId(string userid)
+        {
+            ChangeTracker.DetectChanges();
+
+            foreach (var entry in ChangeTracker.Entries()
+                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+            {
+                if (entry.Entity.GetType().GetCustomAttributes(typeof(AuditableAttribute), true).Length > 0)
+                {
+                    if (entry.State == EntityState.Modified)
+                    {
+                        entry.Property("LastModifiedBy").CurrentValue = new Guid(userid);
+                    }
+
+                    if (entry.State == EntityState.Added)
+                    {
+                        entry.Property("CreatedBy").CurrentValue = new Guid(userid);
+                    }
+                }
+            }
+        }
+
+        public int SaveChanges(string userId)
+        {
+            HandleInsertUpdateTime();
+            HandleUserId(userId);
             return base.SaveChanges();
         }
 
-        #region ______ Methods ______
-        
-        public async Task<int> SaveChangesAsync()
+        public async Task<int> SaveChangesAsync(string userId)
         {
+            HandleInsertUpdateTime();
+            HandleUserId(userId);
             return await base.SaveChangesAsync();
         }
+
+
+
+        #region ______ Methods ______
+
+        public async Task<int> SaveChangesAsync()
+        {
+            HandleInsertUpdateTime();
+            return await base.SaveChangesAsync();
+        }
+
 
         public bool AddEntity<TEntity>(TEntity entity)
         {
