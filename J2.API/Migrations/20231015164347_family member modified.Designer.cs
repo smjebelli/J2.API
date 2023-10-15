@@ -4,6 +4,7 @@ using J2.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace J2.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231015164347_family member modified")]
+    partial class familymembermodified
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,6 +155,10 @@ namespace J2.API.Migrations
 
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("hello")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -444,16 +451,16 @@ namespace J2.API.Migrations
                         {
                             Id = "75b5fe28-7aac-4b20-b430-1d1a045b5afa",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ac62dd21-1f44-4b6c-b9f8-643de0eef757",
+                            ConcurrencyStamp = "c9546256-a775-4b88-97fe-43ec62107014",
                             Email = "s.m.jebelli@gmail.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "S.M.JEBELLI@GMAIL.COM",
                             NormalizedUserName = "S.M.JEBELLI@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEORScuw372rD1o8282umNt4nOncn7/zEBJ9s0aAqsl8FTqVbTcAQxHf2xaFTTS5mYg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIcBp5OYiAAGEpe3aFyujLDl+7oNHyJm+WXFaW0Xsb6gLI7zNyXtg0gyDDvW6lI5Bg==",
                             PhoneNumber = "09355270270",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "efcefb73-1b23-4878-ae7c-816848124791",
+                            SecurityStamp = "147148a6-47a4-457d-8098-c08e7cf3de30",
                             TwoFactorEnabled = false,
                             UserName = "s.m.jebelli@gmail.com",
                             FirstName = "محمد",
@@ -472,13 +479,11 @@ namespace J2.API.Migrations
 
             modelBuilder.Entity("J2.API.Models.FamilyMember", b =>
                 {
-                    b.HasOne("J2.API.Models.Family", "Family")
+                    b.HasOne("J2.API.Models.Family", null)
                         .WithMany("Members")
                         .HasForeignKey("FamilyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Family");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

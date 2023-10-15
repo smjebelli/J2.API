@@ -61,13 +61,23 @@ namespace J2.API.Services
                 return response;
             }
 
-            _dbContext.Families.Add(new Family()
+            var member = new FamilyMember()
             {
-                FamilyName = createFamilyRequest.FamilyName,
-                Members = new List<FamilyMember>() { new FamilyMember{Name= "خودم" },
-                
-                }
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                NickName = $"{user.FirstName} {user.LastName}"
+            };
+            
+
+            var family = _dbContext.Families.Add(new Family()
+            {
+                FamilyName = createFamilyRequest.FamilyName,   
+                Members= new List<FamilyMember>() { member}
             });
+
+            
+
+            
 
             int res = _dbContext.SaveChanges();
             if (res > 0)
