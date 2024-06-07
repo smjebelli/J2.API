@@ -37,9 +37,13 @@ namespace J2.API.StartupExtensions
         {
             var jwtSettings = configuration.GetSection("Jwt");
             //command on windows to create key:  setx JKey 3a367dd9-0f04-4365-bd46-13a29b278220 
+#if DEBUG
+            string key = "3a367dd9-0f04-4365-bd46-13a29b278220 ";
+#else
 
-            var key = Environment.GetEnvironmentVariable("Jkey");
-
+            var key = Environment.GetEnvironmentVariable("JKey");
+#endif
+            
             if (key is null)
             {
                 throw new Exception("Secret Key not found");
