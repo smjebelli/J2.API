@@ -2,6 +2,7 @@
 using J2.API.Models;
 using J2.API.Utilities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -26,12 +27,14 @@ namespace J2.API.Services
         private UserManager<AppUser> _userManager;
         private RoleManager<IdentityRole> _roleManager;
         private AppUser _user;
+        private Jwt _jwt;
 
-        public AuthService(IConfiguration configuration, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AuthService(IConfiguration configuration, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager,IOptions<Appsettings> appSettings)
         {
             _configuration = configuration;
             _userManager = userManager;
             _roleManager = roleManager;
+            _jwt= appSettings.Value.Jwt;
         }
 
 
@@ -54,12 +57,12 @@ namespace J2.API.Services
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var jwtSettings = _configuration.GetSection("Jwt");
+            
 
             var token = new JwtSecurityToken(
-                issuer: jwtSettings.GetSection("Issuer").Value,
+                issuer:_jwt.Issuer ,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(double.Parse(jwtSettings.GetSection("ValidationDurtationMinutes").Value)),
+                expires: DateTime.Now.AddMinutes(_jwt.ValidationDurtationMinutes),
                 signingCredentials: singingCredentials
             );
 
@@ -71,7 +74,7 @@ namespace J2.API.Services
         {
             AppUser appUser = new AppUser()
             {
-                UserName = user.Email,
+                UserName = user.PhoneNumber,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
@@ -93,13 +96,13 @@ namespace J2.API.Services
 
         public async Task<bool> ValidateUser(UserLoginDto user)
         {
-            _user = await _userManager.FindByEmailAsync(user.Email);
+            _user = await _userManager.FindByNameAsync(user.PhoneNumber);
             return (_user != null && await _userManager.CheckPasswordAsync(_user, user.Password));
         }
 
         public async Task<bool> UserExists(string userName)
         {
-            var user = await _userManager.FindByEmailAsync(userName);
+            var user = await _userManager.FindByNameAsync(userName);
             return user != null;
         }
 
@@ -113,9 +116,10 @@ namespace J2.API.Services
 
         public async Task<string> CreateRefreshToken()
         {
-            await _userManager.RemoveAuthenticationTokenAsync(_user, "JeyApi9876", "RefreshToken");
-            var newRefreshToken = await _userManager.GenerateUserTokenAsync(_user, "JeyApi9876", "RefreshToken");
-            var result = await _userManager.SetAuthenticationTokenAsync(_user, "JeyApi9876", "RefreshToken", newRefreshToken);
+            
+            await _userManager.RemoveAuthenticationTokenAsync(_user, _jwt.ClientId, "RefreshToken");
+            var newRefreshToken = await _userManager.GenerateUserTokenAsync(_user, _jwt.ClientId, "RefreshToken");
+            var result = await _userManager.SetAuthenticationTokenAsync(_user, _jwt.ClientId, "RefreshToken", newRefreshToken);
             return newRefreshToken;
         }
 
@@ -127,7 +131,7 @@ namespace J2.API.Services
             _user = await _userManager.FindByNameAsync(username);
             try
             {
-                var isValid = await _userManager.VerifyUserTokenAsync(_user, "JeyApi9876", "RefreshToken", request.RefreshToken);
+                var isValid = await _userManager.VerifyUserTokenAsync(_user, _jwt.ClientId, "RefreshToken", request.RefreshToken);
                 if (isValid)
                 {
                     return new TokenRequest { Token = await CreateToken(), RefreshToken = await CreateRefreshToken() };

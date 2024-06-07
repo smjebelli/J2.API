@@ -61,7 +61,7 @@ namespace J2.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] UserLoginDto login)
         {
-            _logger.LogInformation($"در حال لاگین کاربر: {login.Email}");
+            _logger.LogInformation($"در حال لاگین کاربر: {login.PhoneNumber}");
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

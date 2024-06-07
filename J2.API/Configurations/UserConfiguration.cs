@@ -13,7 +13,7 @@ namespace J2.API.Configurations
             {
                 Id = "75b5fe28-7aac-4b20-b430-1d1a045b5afa",
                 Email = "s.m.jebelli@gmail.com",
-                UserName = "s.m.jebelli@gmail.com",
+                UserName = "09355270270",
                 FirstName = "محمد",
                 LastName = "جبلی",
                 PhoneNumber = "09355270270",
