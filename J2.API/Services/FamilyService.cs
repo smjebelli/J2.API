@@ -65,8 +65,6 @@ namespace J2.API.Services
 
             var member = new FamilyMember()
             {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
                 NickName = $"{user.FirstName} {user.LastName}"
             };
 

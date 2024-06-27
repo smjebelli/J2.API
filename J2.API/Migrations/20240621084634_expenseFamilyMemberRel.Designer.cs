@@ -4,6 +4,7 @@ using J2.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace J2.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240621084634_expenseFamilyMemberRel")]
+    partial class expenseFamilyMemberRel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,7 +102,7 @@ namespace J2.API.Migrations
                         {
                             Id = 1,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedOn = new DateTime(2024, 6, 21, 12, 32, 14, 239, DateTimeKind.Local).AddTicks(8795),
+                            CreatedOn = new DateTime(2024, 6, 21, 12, 16, 32, 70, DateTimeKind.Local).AddTicks(9258),
                             Description = "هزینه های جاری مانند خوارک و جابجایی و ...",
                             Name = "جاری"
                         },
@@ -107,7 +110,7 @@ namespace J2.API.Migrations
                         {
                             Id = 2,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedOn = new DateTime(2024, 6, 21, 12, 32, 14, 239, DateTimeKind.Local).AddTicks(8809),
+                            CreatedOn = new DateTime(2024, 6, 21, 12, 16, 32, 70, DateTimeKind.Local).AddTicks(9274),
                             Description = "پزشکی و بهداشتی و بیمه",
                             Name = "درمانی و بیمه"
                         },
@@ -115,7 +118,7 @@ namespace J2.API.Migrations
                         {
                             Id = 3,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedOn = new DateTime(2024, 6, 21, 12, 32, 14, 239, DateTimeKind.Local).AddTicks(8810),
+                            CreatedOn = new DateTime(2024, 6, 21, 12, 16, 32, 70, DateTimeKind.Local).AddTicks(9274),
                             Description = "تعمیر، سرویس و نگهداری",
                             Name = "خودرو"
                         },
@@ -123,7 +126,7 @@ namespace J2.API.Migrations
                         {
                             Id = 4,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedOn = new DateTime(2024, 6, 21, 12, 32, 14, 239, DateTimeKind.Local).AddTicks(8811),
+                            CreatedOn = new DateTime(2024, 6, 21, 12, 16, 32, 70, DateTimeKind.Local).AddTicks(9275),
                             Description = "سفر، تفریح، ورزش و مرتبط با آن",
                             Name = "تفریح و سلامتی"
                         },
@@ -131,7 +134,7 @@ namespace J2.API.Migrations
                         {
                             Id = 5,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedOn = new DateTime(2024, 6, 21, 12, 32, 14, 239, DateTimeKind.Local).AddTicks(8811),
+                            CreatedOn = new DateTime(2024, 6, 21, 12, 16, 32, 70, DateTimeKind.Local).AddTicks(9276),
                             Description = "اجاره، تعمیرات، خرجهای اساسی منزل",
                             Name = "خانه و نگهداری آن"
                         },
@@ -139,7 +142,7 @@ namespace J2.API.Migrations
                         {
                             Id = 6,
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedOn = new DateTime(2024, 6, 21, 12, 32, 14, 239, DateTimeKind.Local).AddTicks(8812),
+                            CreatedOn = new DateTime(2024, 6, 21, 12, 16, 32, 70, DateTimeKind.Local).AddTicks(9277),
                             Description = "هزینه های تحصیل، لوازم التحریر، اسباب بازی و ... کودکان",
                             Name = "کودکان"
                         });
@@ -216,10 +219,7 @@ namespace J2.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AppUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AppUserId1")
+                    b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<Guid>("CreatedBy")
@@ -231,9 +231,6 @@ namespace J2.API.Migrations
                     b.Property<Guid>("FamilyId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsFamilyAdmin")
-                        .HasColumnType("bit");
-
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -244,9 +241,12 @@ namespace J2.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId1");
+                    b.HasIndex("AppUserId");
 
                     b.HasIndex("FamilyId");
 
@@ -500,16 +500,16 @@ namespace J2.API.Migrations
                         {
                             Id = "75b5fe28-7aac-4b20-b430-1d1a045b5afa",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0da97503-ffb7-40fc-8c14-31d19e26e05a",
+                            ConcurrencyStamp = "1fcdfeb7-724d-453f-aad8-10c9152ecf42",
                             Email = "s.m.jebelli@gmail.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             NormalizedEmail = "S.M.JEBELLI@GMAIL.COM",
                             NormalizedUserName = "S.M.JEBELLI@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJeZZrgMT41ITv5Jwyv2xZl3JtZ+vykGo8vOd/xFJ7uY6NESbqLV1vi2H6qWjamx0g==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMD5h+jMo6bUofANVlx8evpZok5ImTsxnpNU3IcDF2wF9St0n4teRntonIe3pEUM+g==",
                             PhoneNumber = "09355270270",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "35d14a49-eccd-4a15-96f3-f8cff4b6689c",
+                            SecurityStamp = "aa7ec11d-a997-4c41-8c3e-2bad9eb707e8",
                             TwoFactorEnabled = false,
                             UserName = "09355270270",
                             FirstName = "محمد",
@@ -541,7 +541,7 @@ namespace J2.API.Migrations
                 {
                     b.HasOne("J2.API.Models.AppUser", "AppUser")
                         .WithMany()
-                        .HasForeignKey("AppUserId1");
+                        .HasForeignKey("AppUserId");
 
                     b.HasOne("J2.API.Models.Family", "Family")
                         .WithMany("Members")

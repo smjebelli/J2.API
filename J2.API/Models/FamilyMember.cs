@@ -5,11 +5,11 @@ namespace J2.API.Models
 {
     public class FamilyMember : BaseEntity
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public Guid AppUserId { get; set; }
+        public AppUser AppUser { get; set; }
         public string NickName { get; set; }
-        [ForeignKey("Family")]
+        public bool IsFamilyAdmin { get; set; }
         public Guid FamilyId { get; set; }
-        public virtual Family Family{ get; set; }
+        public Family Family{ get; set; }
     }
 }

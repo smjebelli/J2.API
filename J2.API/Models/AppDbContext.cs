@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace J2.API.Models
 {
@@ -21,12 +22,8 @@ namespace J2.API.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new RoleConfiguration())
-                .ApplyConfiguration(new UserConfiguration())
-                .ApplyConfiguration(new UserRoleConfiguration())
-                .ApplyConfiguration(new ExpenseCategoryConfiguration());
-
-
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(AppDbContext)));
+            
 
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
