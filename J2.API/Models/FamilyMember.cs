@@ -5,7 +5,7 @@ namespace J2.API.Models
 {
     public class FamilyMember : BaseEntity
     {
-        public Guid AppUserId { get; set; }
+        //public Guid AppUserId { get; set; }
         public AppUser AppUser { get; set; }
         public string NickName { get; set; }
         public bool IsFamilyAdmin { get; set; }

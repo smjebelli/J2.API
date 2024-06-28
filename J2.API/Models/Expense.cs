@@ -2,7 +2,7 @@
 {
     public class Expense:BaseEntity
     {
-        public long Amount { get; set; }
+        public decimal Amount { get; set; }
         public DateTime ExpenseDate { get; set; }
 
         public Guid FamilyMemberId { get; set; }
